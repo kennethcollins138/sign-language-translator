@@ -1,6 +1,5 @@
-import sys
-import os
 import shutil
+import sys
 from pathlib import Path
 
 # Add the project root directory to the Python path
@@ -19,7 +18,7 @@ def pytest_sessionfinish(session, exitstatus):
     if test_data_dir.exists():
         for item in test_data_dir.iterdir():
             if item.is_file():
-                os.remove(item)
+                Path.unlink(item)
             elif item.is_dir():
                 shutil.rmtree(item)
         print(f"Cleaned test data directory: {test_data_dir}")
@@ -28,7 +27,7 @@ def pytest_sessionfinish(session, exitstatus):
     if test_logs_dir.exists():
         for item in test_logs_dir.iterdir():
             if item.is_file():
-                os.remove(item)
+                Path.unlink(item)
             elif item.is_dir():
                 shutil.rmtree(item)
         print(f"Cleaned test logs directory: {test_logs_dir}")
