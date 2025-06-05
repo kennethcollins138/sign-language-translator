@@ -11,7 +11,7 @@ def setup_logger(
     file_level: str = "DEBUG",
 ) -> logger.__class__:
     log_dir.mkdir(exist_ok=True)
-    
+
     instance = logger.bind(name=name)
     instance.remove()
 
@@ -21,7 +21,7 @@ def setup_logger(
         colorize=True,
         format="<green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan> - <level>{message}</level>",
         level=console_level,
-        filter=lambda record: record["level"].name >= console_level
+        filter=lambda record: record["level"].name >= console_level,
     )
 
     # Main log file

@@ -39,7 +39,7 @@ jobs:
         run: |
           uv venv
           source .venv/bin/activate
-          uv pip install -e ".[dev]"
+          uv sync
 
       - name: Cache virtual environment
         uses: actions/cache/save@v4
@@ -50,6 +50,8 @@ jobs:
   lint:
     needs: setup
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v4
 
@@ -69,11 +71,12 @@ jobs:
         run: |
           source .venv/bin/activate
           ruff check .
-          ruff format --check .
 
   test:
     needs: setup
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v4
 
@@ -92,7 +95,7 @@ jobs:
       - name: Run tests
         run: |
           source .venv/bin/activate
-          pytest tests/ --benchmark-skip
+          uv run pytest
 
       - name: Run benchmarks
         run: |

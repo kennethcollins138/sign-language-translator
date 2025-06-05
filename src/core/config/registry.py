@@ -43,22 +43,31 @@ class ConfigRegistry:
                 "data_dir": project_root / "data",
                 "output_dir": project_root / "output",
                 "logs_dir": project_root / "logs",
-
                 # Component config paths
-                "camera_config": project_root / "configs" / "components" / "camera.yaml",
-                "processor_config": project_root / "configs" / "components" / "processor.yaml",
+                "camera_config": project_root
+                / "configs"
+                / "components"
+                / "camera.yaml",
+                "processor_config": project_root
+                / "configs"
+                / "components"
+                / "processor.yaml",
             }
 
             # Check if model config directory exists
             models_config_dir = project_root / "configs" / "components" / "models"
             if models_config_dir.exists():
-                cls._paths.update({
-                    "mediapipe_config": models_config_dir / "mediapipe.yaml",
-                    "yolov9_config": models_config_dir / "yolov9.yaml",
-                })
+                cls._paths.update(
+                    {
+                        "mediapipe_config": models_config_dir / "mediapipe.yaml",
+                        "yolov9_config": models_config_dir / "yolov9.yaml",
+                    }
+                )
                 cls._logger.info(f"Initialized {len(cls._paths)} default paths")
             else:
-                cls._logger.info(f"Initialized {len(cls._paths)} default paths (models config dir not found)")
+                cls._logger.info(
+                    f"Initialized {len(cls._paths)} default paths (models config dir not found)"
+                )
         except ConfigPathError:
             cls._logger.exception("Error initializing paths")
 
@@ -90,7 +99,9 @@ class ConfigRegistry:
             return False
 
     @classmethod
-    def register_config_schema(cls, config_name: str, schema_class: type[BaseModel]) -> bool:
+    def register_config_schema(
+        cls, config_name: str, schema_class: type[BaseModel]
+    ) -> bool:
         """
         Register a configuration schema class
 
@@ -105,7 +116,9 @@ class ConfigRegistry:
             return False
 
     @classmethod
-    def load_config(cls, config_name: str, custom_path: Path | None = None) -> BaseModel | None:
+    def load_config(
+        cls, config_name: str, custom_path: Path | None = None
+    ) -> BaseModel | None:
         """
         Load a configuration by name
 
@@ -126,7 +139,9 @@ class ConfigRegistry:
             else:
                 path_key = f"{config_name}_config"
                 if path_key not in cls._paths:
-                    cls._logger.error(f"No default path for '{config_name}' configuration")
+                    cls._logger.error(
+                        f"No default path for '{config_name}' configuration"
+                    )
                     return None
                 config_path = cls._paths[path_key]
 
@@ -148,7 +163,9 @@ class ConfigRegistry:
             # Cache the instance
             cls._config_instances[config_name] = config_instance
 
-            cls._logger.debug(f"Loaded configuration '{config_name}' from {config_path}")
+            cls._logger.debug(
+                f"Loaded configuration '{config_name}' from {config_path}"
+            )
             return config_instance
 
         except (yaml.YAMLError, ConfigLoadError):
@@ -166,7 +183,9 @@ class ConfigRegistry:
         return cls._config_instances[config_name]
 
     @classmethod
-    def create_custom_config(cls, config_name: str, **overrides: Any) -> BaseModel | None:
+    def create_custom_config(
+        cls, config_name: str, **overrides: Any
+    ) -> BaseModel | None:
         """
         Create a custom configuration by overriding values in the default
 
@@ -181,7 +200,9 @@ class ConfigRegistry:
             # Get the base configuration
             base_config = cls.get_config(config_name)
             if base_config is None:
-                cls._logger.error(f"Failed to get base configuration for '{config_name}'")
+                cls._logger.error(
+                    f"Failed to get base configuration for '{config_name}'"
+                )
                 return None
             # Create a dictionary from the base config
             config_dict = base_config.model_dump()
@@ -203,7 +224,9 @@ class ConfigRegistry:
             schema_class = cls._config_schemas[config_name]
             custom_config = schema_class(**config_dict)
 
-            cls._logger.debug(f"Created custom configuration for '{config_name}' with overrides: {overrides}")
+            cls._logger.debug(
+                f"Created custom configuration for '{config_name}' with overrides: {overrides}"
+            )
             return custom_config
 
         except ConfigSaveError:
@@ -227,7 +250,9 @@ class ConfigRegistry:
             save_path.parent.mkdir(parents=True, exist_ok=True)
 
             # Convert config to dictionary
-            config_dict = config.model_dump()  # Already using model_dump which is correct for v2
+            config_dict = (
+                config.model_dump()
+            )  # Already using model_dump which is correct for v2
 
             # Save to YAML file
             with Path(save_path).open("w") as f:

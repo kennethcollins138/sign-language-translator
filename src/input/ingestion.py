@@ -11,6 +11,7 @@ from src.core import logging
 
 NDIM_CHECK = 3
 
+
 class CameraIngestion(BaseModel):
     """
     Camera Ingestion is a class that handles the ingestion of camera data.
@@ -24,7 +25,13 @@ class CameraIngestion(BaseModel):
         - Frame data, configurations, etc.
 
     """
-    def __init__(self, camera: int = 0, logger: loguru.logger = None, target_size: tuple[int, int] = (640,640) ):
+
+    def __init__(
+        self,
+        camera: int = 0,
+        logger: loguru.logger = None,
+        target_size: tuple[int, int] = (640, 640),
+    ):
         """
         Initialize the camera ingestion class. Configs taken here
         :param camera:
@@ -47,7 +54,7 @@ class CameraIngestion(BaseModel):
             - Frame rate skipping/throttling, need to think about how to handle this
             - debate about moving this to preprocessor, or just having it here for now
         """
-        
+
     def start(self) -> Generator[Union[Mat, ndarray], Any]:  # noqa: UP007
         """
         This method is called in a controller to start the camera ingestion.
@@ -64,7 +71,9 @@ class CameraIngestion(BaseModel):
             # TODO: Interpolation should be testable for quality vs speed tradeoff
             # another reason for passing preprocess configs into class and passing class down to CameraIngestion
             # resize frame
-            resized_frame = cv2.resize(frame, self.target_size, interpolation=cv2.INTER_LINEAR)
+            resized_frame = cv2.resize(
+                frame, self.target_size, interpolation=cv2.INTER_LINEAR
+            )
 
             # normalize pixel values
             # Check if config/model requires normalization of pixel values
@@ -84,7 +93,6 @@ class CameraIngestion(BaseModel):
 
         :return:
         """
-
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.cam.release()

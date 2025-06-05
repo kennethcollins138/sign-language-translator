@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 T = TypeVar("T", bound=BaseModel)
 
+
 class ConfigLoader:
     """Loads configurations from YAML files into Pydantic models"""
 
@@ -27,7 +28,11 @@ class ConfigLoader:
         """Deep merge two dictionaries"""
         result = base.copy()
         for key, value in override.items():
-            if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+            if (
+                key in result
+                and isinstance(result[key], dict)
+                and isinstance(value, dict)
+            ):
                 result[key] = ConfigLoader._deep_merge(result[key], value)
             else:
                 result[key] = value
