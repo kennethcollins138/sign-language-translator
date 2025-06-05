@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  PYTHON_VERSION: "3.13"
+  UV_VERSION: "0.1.20"
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        id: python-setup
+        with:
+          python-version-file: "pyproject.toml"
+
+      - name: Cache uv dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-uv-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
+
+      - name: Create venv and install dependencies
+        run: |
+          uv venv
+          source .venv/bin/activate
+          uv pip install -e ".[dev]"
+
+      - name: Cache virtual environment
+        uses: actions/cache/save@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-py-${{ env.PYTHON_VERSION }}-${{ hashFiles('pyproject.toml') }}
+
+  lint:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Restore virtual environment
+        uses: actions/cache/restore@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-py-${{ env.PYTHON_VERSION }}-${{ hashFiles('pyproject.toml') }}
+          fail-on-cache-miss: true
+
+      - name: Lint with Ruff
+        run: |
+          source .venv/bin/activate
+          ruff check .
+          ruff format --check .
+
+  test:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Restore virtual environment
+        uses: actions/cache/restore@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-py-${{ env.PYTHON_VERSION }}-${{ hashFiles('pyproject.toml') }}
+          fail-on-cache-miss: true
+
+      - name: Run tests
+        run: |
+          source .venv/bin/activate
+          pytest tests/ --benchmark-skip
+
+      - name: Run benchmarks
+        run: |
+          source .venv/bin/activate
+          pytest tests/ --benchmark-only
