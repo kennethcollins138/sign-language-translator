@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from src.core import logging
 
+NDIM_CHECK = 3
 
 class CameraIngestion(BaseModel):
     """
@@ -24,7 +25,7 @@ class CameraIngestion(BaseModel):
         - Frame data, configurations, etc.
 
     """
-    def __init__(self, camera: int = 0, logger: loguru.logger = None ):
+    def __init__(self, camera: int = 0, logger: loguru.logger = None, target_size: tuple[int, int] = (640,640) ):
         """
         Initialize the camera ingestion class. Configs taken here
         :param camera:
@@ -32,6 +33,8 @@ class CameraIngestion(BaseModel):
         super().__init__()
         # config and logging
         self.logger = logger if logger else logging.setup_logger(__name__)
+        # expected output size for model
+        self.target_size = target_size
 
         # camera setup
         self.cam = cv2.VideoCapture(camera)
@@ -41,12 +44,12 @@ class CameraIngestion(BaseModel):
 
 
         """
-        TODO: Add more configurations need to pass next stage of output likely preprocessor
-            - Resolution consistency, need to think about how to handle this, ffmpeg?
+        TODO: 
+            - Add more configurations need to pass next stage of output likely preprocessor
             - Frame rate skipping/throttling, need to think about how to handle this
             - debate about moving this to preprocessor, or just having it here for now
-            
         """
+        
     def start(self) -> Generator[Union[Mat, ndarray], Any]:  # noqa: UP007
         """
         This method is called in a controller to start the camera ingestion.
@@ -60,8 +63,20 @@ class CameraIngestion(BaseModel):
                 # TODO: Gracefully handle frame skipping
                 self.logger.error("Failed to grab frame")
                 break
-            # TODO: think about having preprocessing done in controller or separation of concerns
-            yield frame
+            # TODO: Interpolation should be testable for quality vs speed tradeoff
+            # another reason for passing preprocess configs into class and passing class down to CameraIngestion
+            # resize frame
+            resized_frame = cv2.resize(frame, self.target_size, interpolation=cv2.INTER_LINEAR)
+
+            # normalize pixel values
+            # Check if config/model requires normalization of pixel values
+            # normalized_frame = resized_frame / 255.0  # noqa: ERA001
+
+            # check if model requires BGR or RGB, convert from BGR to RGB if necessary
+            is_bgr: bool = frame.ndim == NDIM_CHECK
+            if is_bgr:
+                self.logger(f"Grabbed frame {frame.shape}")
+            yield resized_frame
 
     def stop(self):
         """
