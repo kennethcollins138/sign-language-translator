@@ -21,7 +21,6 @@ class CameraIngestion(BaseModel):
     When the class is destroyed, the camera closes.
 
     Needs:
-        - Output stream
         - Frame data, configurations, etc.
 
     """
@@ -41,7 +40,6 @@ class CameraIngestion(BaseModel):
         self.frame_width: int = int(self.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.frame_height: int = int(self.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.fps: int = int(self.cam.get(cv2.CAP_PROP_FPS))
-
 
         """
         TODO: 
