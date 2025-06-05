@@ -1,0 +1,7 @@
+interpolation: "linear"
+normalize_alpha: 0
+normalize_beta: 255
+normalize: "norm_minmax"
+model_input_format: "RGB"
+frame_width: 640
+frame_height: 640

@@ -9,10 +9,8 @@ from pydantic import BaseModel
 
 from src.core import logging
 
-NDIM_CHECK = 3
 
-
-class CameraIngestion(BaseModel):
+class CameraIngestion:
     """
     Camera Ingestion is a class that handles the ingestion of camera data.
     It is responsible for capturing images from a camera and returning them as an array.
@@ -20,70 +18,47 @@ class CameraIngestion(BaseModel):
     If the camera is not found, an error will be raised. (Should be handled before calling this)
     When the class is instantiated, the camera is opened.
     When the class is destroyed, the camera closes.
-
-    Needs:
-        - Frame data, configurations, etc.
-
+    TODO:
+        - Frame rate skipping/throttling, need to think about how to handle this
     """
 
     def __init__(
         self,
-        camera: int = 0,
+        config: BaseModel,
         logger: loguru.logger = None,
-        target_size: tuple[int, int] = (640, 640),
     ):
         """
         Initialize the camera ingestion class. Configs taken here
-        :param camera:
+        :param config: config files that can be defined/pass from the controller.
+        :param logger: logger object to use for logging.
         """
-        super().__init__()
         # config and logging
-        self.logger = logger if logger else logging.setup_logger(__name__)
-        # expected output size for model
-        self.target_size = target_size
+        self.logger = logger if logger else logging.setup_logger("camera_ingestion")
+        self.config = config
 
-        # camera setup
-        self.cam = cv2.VideoCapture(camera)
-        self.frame_width: int = int(self.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
-        self.frame_height: int = int(self.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        self.fps: int = int(self.cam.get(cv2.CAP_PROP_FPS))
+        # camera setup - use default camera (0) if config is None or doesn't have camera_id
+        camera_id = getattr(config, "camera_id", 0) if config else 0
+        self.cap = cv2.VideoCapture(camera_id)
+        if not self.cap.isOpened():
+            raise RuntimeError
+        self.frame_width: int = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.frame_height: int = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        self.fps: int = int(self.cap.get(cv2.CAP_PROP_FPS))
 
-        """
-        TODO: 
-            - Add more configurations need to pass next stage of output likely preprocessor
-            - Frame rate skipping/throttling, need to think about how to handle this
-            - debate about moving this to preprocessor, or just having it here for now
-        """
-
-    def start(self) -> Generator[Union[Mat, ndarray], Any]:  # noqa: UP007
+    def camera_frames(self) -> Generator[Generator[Union[Mat, ndarray], Any]]:
         """
         This method is called in a controller to start the camera ingestion.
         Data can be passed back to the controller as a generator.
-        Decided to keep simple entity for controlling camera feed for the time being.
         :return:
         """
-        while True:
-            ret, frame = self.cam.read()
-            if not ret:
-                # TODO: Gracefully handle frame skipping
-                self.logger.error("Failed to grab frame")
-                break
-            # TODO: Interpolation should be testable for quality vs speed tradeoff
-            # another reason for passing preprocess configs into class and passing class down to CameraIngestion
-            # resize frame
-            resized_frame = cv2.resize(
-                frame, self.target_size, interpolation=cv2.INTER_LINEAR
-            )
-
-            # normalize pixel values
-            # Check if config/model requires normalization of pixel values
-            # normalized_frame = resized_frame / 255.0  # noqa: ERA001
-
-            # check if model requires BGR or RGB, convert from BGR to RGB if necessary
-            is_bgr: bool = frame.ndim == NDIM_CHECK
-            if is_bgr:
-                self.logger(f"Grabbed frame {frame.shape}")
-            yield resized_frame
+        try:
+            while self.cap.isOpened():
+                ok, frame = self.cap.read()
+                if not ok:
+                    continue
+                yield frame
+        finally:
+            self.cap.release()
 
     def stop(self):
         """
@@ -93,6 +68,11 @@ class CameraIngestion(BaseModel):
 
         :return:
         """
+        self.cap.release()
+        cv2.destroyAllWindows()
+        
+    def __enter__(self):
+        return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.cam.release()
+        self.cap.release()

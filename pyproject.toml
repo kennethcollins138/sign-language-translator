@@ -111,7 +111,8 @@ ignore = [
     "PLR0913",  # Too many arguments to function call
     "S101",     # Use of assert detected
     "G004",    # f string errors
-    "TRY300"
+    "TRY300",
+    "UP007",
 ]
 
 
