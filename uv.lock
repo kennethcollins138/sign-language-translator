@@ -1103,6 +1103,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pytest" },
     { name = "pytest-benchmark" },
+    { name = "pyyaml" },
     { name = "ruff" },
     { name = "torch" },
 ]
@@ -1133,6 +1134,7 @@ requires-dist = [
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.26.0" },
     { name = "pytest-benchmark", specifier = ">=4.0.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1.0" },
+    { name = "pyyaml", specifier = ">=6.0.1" },
     { name = "ruff", specifier = ">=0.11.12" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.11.12" },
     { name = "torch", specifier = ">=2.2.1" },

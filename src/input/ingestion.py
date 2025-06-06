@@ -1,5 +1,5 @@
 from collections.abc import Generator
-from typing import Any, Union
+from typing import Any
 
 import cv2
 import loguru
@@ -45,7 +45,7 @@ class CameraIngestion:
         self.frame_height: int = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.fps: int = int(self.cap.get(cv2.CAP_PROP_FPS))
 
-    def camera_frames(self) -> Generator[Generator[Union[Mat, ndarray], Any]]:
+    def camera_frames(self) -> Generator[Mat | ndarray, None, Any]:
         """
         This method is called in a controller to start the camera ingestion.
         Data can be passed back to the controller as a generator.

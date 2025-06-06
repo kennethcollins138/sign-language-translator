@@ -31,24 +31,24 @@ class FramePreprocessor:
         process is the central hub of the class for preprocessing frames.
         """
         # interpolation and resizing
-        if self.config.interpolation != "":
+        if self.config.interpolation:
             frame = cv2.resize(
                 frame,
-                dsize=(self.config.frame_width, self.config.frame_height),
-                interpolation=self.get_interpolation_value(self.config.interpolation)
+                dsize=(self.config.model_input.frame_width, self.config.model_input.frame_height),
+                interpolation=self.get_interpolation_value(self.config.interpolation.type)
            )
         # normalize frame
-        if self.config.normalize != "":
+        if self.config.normalization:
             frame = cv2.normalize(
                 frame,
                 None,
-                alpha=self.config.normalize_alpha,
-                beta=self.config.normalize_beta,
-                norm_type=self.get_normalize_value(self.config.normalize),
+                alpha=self.config.normalization.alpha,
+                beta=self.config.normalization.beta,
+                norm_type=self.get_normalize_value(self.config.normalization.type),
                 dtype=cv2.CV_32F
             )
         # handle BGR/RGB conversion if necessary
-        if self.config.model_input_format == "RGB":
+        if self.config.model_input.format == "RGB":
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         return frame
     

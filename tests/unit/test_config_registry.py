@@ -43,7 +43,7 @@ class NestedTestConfig(BaseModel):
 
 
 # --------------------------------------------------------------------------- #
-# The test-suite itself
+# Config Registry Test Suite
 # --------------------------------------------------------------------------- #
 class TestConfigRegistry(unittest.TestCase):
     """Unit tests for ConfigRegistry"""

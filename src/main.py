@@ -12,6 +12,7 @@ def main():
     logger.info("Starting the application")
     
     # register configs
+    ConfigRegistry()
     ConfigRegistry.register_config_schema("camera", CameraConfig)
     ConfigRegistry.register_config_schema("processor", FrameProcessorConfig)
     
