@@ -303,19 +303,17 @@ class Dashboard(QMainWindow):
             if hasattr(self, "logs_widget"):
                 self.logs_widget.append(f"[CONFIG] {config_name}.{param_name} = {value}")
                 
-            # Here you would update the actual configuration
-            # For now, just log the change
-            
+
         except Exception:
             self.logger.exception("Error handling parameter change")
             self.status_bar.set_status("Configuration Error", "#f44336")
             
-    def on_frame_processed(self):
+    def on_frame_processed(self, _frame):
         """
         Handle processed frames from the camera widget.
 
         Args:
-            frame: The processed frame as a numpy array.
+            _frame: The processed frame as a numpy array (unused but required for signal).
         """
         # Update FPS counter
         if self.status_bar:
@@ -348,7 +346,7 @@ class Dashboard(QMainWindow):
             }
         """)
         
-    def close_event(self, event):
+    def closeEvent(self, event):
         """
         Handle application close event.
 

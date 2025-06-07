@@ -13,6 +13,5 @@ The module is organized into components and main dashboard classes:
 """
 
 from .dashboard import Dashboard
-from .window import MainWindow
 
-__all__ = ["Dashboard", "MainWindow"]
+__all__ = ["Dashboard"]

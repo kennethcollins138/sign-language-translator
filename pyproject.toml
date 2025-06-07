@@ -116,6 +116,7 @@ ignore = [
     "G004",    # f string errors
     "TRY300",
     "UP007",
+    "N802"    #QT specific
 ]
 
 
