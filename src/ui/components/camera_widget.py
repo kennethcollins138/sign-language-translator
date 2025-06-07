@@ -1,12 +1,13 @@
 """Camera widget for displaying real-time camera feed with processing controls."""
 
-import cv2
-import numpy as np
-from PyQt6.QtCore import QTimer, pyqtSignal, Qt
-from PyQt6.QtGui import QImage, QPixmap
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton
 from typing import Optional
+
+import cv2
 import loguru
+import numpy as np
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal
+from PyQt6.QtGui import QImage, QPixmap
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from src.input.ingestion import CameraIngestion
 from src.input.preprocessing import FramePreprocessor
@@ -140,8 +141,8 @@ class CameraWidget(QWidget):
         try:
             self.frame_generator = self.camera_ingestion.camera_frames()
             self.logger.info("Camera started successfully")
-        except Exception as e:
-            self.logger.error(f"Error starting camera: {e}")
+        except Exception:
+            self.logger.exception("Error starting camera")
             
     def update_frame(self):
         """
@@ -179,8 +180,8 @@ class CameraWidget(QWidget):
         except StopIteration:
             self.logger.warning("Camera frame generator stopped")
             self.frame_generator = None
-        except Exception as e:
-            self.logger.error(f"Error updating camera frame: {e}")
+        except Exception:
+            self.logger.exception("Error updating camera frame")
             
     def display_frame(self, frame: np.ndarray):
         """
@@ -208,8 +209,8 @@ class CameraWidget(QWidget):
             
             self.camera_label.setPixmap(scaled_pixmap)
             
-        except Exception as e:
-            self.logger.error(f"Error displaying frame: {e}")
+        except Exception:
+            self.logger.exception("Error displaying frame")
             
     def toggle_processing(self):
         """

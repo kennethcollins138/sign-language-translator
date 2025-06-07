@@ -1,11 +1,11 @@
 """Status bar widget for displaying real-time system and application metrics."""
 
-from PyQt6.QtWidgets import QStatusBar, QHBoxLayout, QLabel, QProgressBar, QWidget
-from PyQt6.QtCore import QTimer, pyqtSignal
-import psutil
 import time
-from typing import Optional
+
 import loguru
+import psutil
+from PyQt6.QtCore import QTimer
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QStatusBar, QWidget
 
 
 class StatusBar(QStatusBar):
@@ -158,8 +158,8 @@ class StatusBar(QStatusBar):
                 self.frame_count = 0
                 self.last_fps_time = current_time
                 
-        except Exception as e:
-            self.logger.error(f"Error updating status bar: {e}")
+        except Exception:
+            self.logger.exception("Error updating status bar")
             
     def update_fps(self):
         """

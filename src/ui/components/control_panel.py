@@ -1,11 +1,20 @@
 """Control panel widget for real-time parameter adjustment of the processing pipeline."""
 
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QSlider, QSpinBox, QGroupBox, QCheckBox, QPushButton,
-                             QComboBox)
-from PyQt6.QtCore import Qt, pyqtSignal
-from typing import Dict, Any
+from typing import Any
+
 import loguru
+from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtWidgets import (
+    QCheckBox,
+    QComboBox,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QSlider,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
+)
 
 from src.core.config.registry import ConfigRegistry
 
@@ -32,7 +41,7 @@ class ControlPanel(QWidget):
         super().__init__()
         self.config_registry = config_registry
         self.logger = logger
-        self.controls: Dict[str, Dict[str, QWidget]] = {}
+        self.controls: dict[str, dict[str, QWidget]] = {}
         
         self.setup_ui()
         
@@ -359,8 +368,8 @@ class ControlPanel(QWidget):
             
             self.logger.debug(f"Parameter changed: {config_name}.{param_name} = {value}")
             
-        except Exception as e:
-            self.logger.error(f"Error handling parameter change: {e}")
+        except Exception:
+            self.logger.exception("Error handling parameter change")
             
     def get_control_value(self, config_name: str, param_name: str) -> Any:
         """
@@ -378,11 +387,11 @@ class ControlPanel(QWidget):
             
             if isinstance(control, QSlider):
                 return control.value()
-            elif isinstance(control, QComboBox):
+            if isinstance(control, QComboBox):
                 return control.currentText()
-            elif isinstance(control, QCheckBox):
+            if isinstance(control, QCheckBox):
                 return control.isChecked()
-            elif isinstance(control, QSpinBox):
+            if isinstance(control, QSpinBox):
                 return control.value()
                 
         return None 

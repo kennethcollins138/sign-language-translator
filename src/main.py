@@ -12,16 +12,11 @@ def main():
     logger = logging.setup_logger(__name__)
     logger.info("Initializing dashboard demo")
     
-    # Create config registry
     registry = ConfigRegistry()
     
-    # Create Qt application
     app = QApplication(sys.argv)
-    
-    # Set application properties
     app.setApplicationName("Sign Language Translator")
     app.setApplicationVersion("1.0.0")
-    app.setOrganizationName("SLT Team")
     
     try:
         # Create and show dashboard
@@ -36,8 +31,8 @@ def main():
         logger.info(f"Application exited with code: {exit_code}")
         return exit_code
         
-    except Exception as e:
-        logger.error(f"Error running dashboard: {e}")
+    except Exception:
+        logger.exception("Error running dashboard")
         return 1
 
 

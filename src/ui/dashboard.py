@@ -1,10 +1,18 @@
 """Main dashboard window for the sign language translator application."""
 
-from PyQt6.QtWidgets import (QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, 
-                             QSplitter, QTabWidget, QTextEdit, QScrollArea)
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QFont
 import loguru
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import (
+    QHBoxLayout,
+    QMainWindow,
+    QScrollArea,
+    QSplitter,
+    QTabWidget,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
 
 from src.core.config.registry import ConfigRegistry
 from src.core.config.schema import CameraConfig, FrameProcessorConfig
@@ -292,17 +300,17 @@ class Dashboard(QMainWindow):
             self.status_bar.set_status(f"Updated {param_name}", "#4CAF50")
             
             # Add to logs
-            if hasattr(self, 'logs_widget'):
+            if hasattr(self, "logs_widget"):
                 self.logs_widget.append(f"[CONFIG] {config_name}.{param_name} = {value}")
                 
             # Here you would update the actual configuration
             # For now, just log the change
             
-        except Exception as e:
-            self.logger.error(f"Error handling parameter change: {e}")
+        except Exception:
+            self.logger.exception("Error handling parameter change")
             self.status_bar.set_status("Configuration Error", "#f44336")
             
-    def on_frame_processed(self, frame):
+    def on_frame_processed(self):
         """
         Handle processed frames from the camera widget.
 
@@ -340,7 +348,7 @@ class Dashboard(QMainWindow):
             }
         """)
         
-    def closeEvent(self, event):
+    def close_event(self, event):
         """
         Handle application close event.
 
@@ -360,6 +368,6 @@ class Dashboard(QMainWindow):
                 
             event.accept()
             
-        except Exception as e:
-            self.logger.error(f"Error during shutdown: {e}")
+        except Exception:
+            self.logger.exception("Error during shutdown")
             event.accept()  # Accept anyway to ensure app closes 
