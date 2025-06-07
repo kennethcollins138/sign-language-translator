@@ -1,7 +1,7 @@
 [project]
 name = "sign-language-translator"
 version = "0.1.0"
-description = "Add your description here"
+description = "Fun little sideproject I made awhile ago I decided to beef up."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -16,6 +16,8 @@ dependencies = [
     "pytest-benchmark>=4.0.0",
     "pre-commit>=4.2.0",
     "pyyaml>=6.0.1",
+    "pyqt6>=6.9.1",
+    "psutil>=5.9.0",
 ]
 
 [tool.setuptools.packages.find]

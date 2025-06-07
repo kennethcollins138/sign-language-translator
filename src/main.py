@@ -1,38 +1,46 @@
-import cv2
+import sys
+
+from PyQt6.QtWidgets import QApplication
 
 from src.core import logging
 from src.core.config.registry import ConfigRegistry
-from src.core.config.schema import CameraConfig, FrameProcessorConfig
-from src.input.ingestion import CameraIngestion
-from src.input.preprocessing import FramePreprocessor
+from src.ui.dashboard import Dashboard
 
 
 def main():
+    # Setup logging
     logger = logging.setup_logger(__name__)
-    logger.info("Starting the application")
+    logger.info("Initializing dashboard demo")
     
-    # register configs
-    ConfigRegistry()
-    ConfigRegistry.register_config_schema("camera", CameraConfig)
-    ConfigRegistry.register_config_schema("processor", FrameProcessorConfig)
+    # Create config registry
+    registry = ConfigRegistry()
     
-    # load configs
-    camera_config = ConfigRegistry.get_config("camera")
-    processor_config = ConfigRegistry.get_config("processor")
+    # Create Qt application
+    app = QApplication(sys.argv)
     
-    # initialize input components
-    cam = CameraIngestion(camera_config, logger)
-    frame_processor = FramePreprocessor(processor_config, logger)
-
-    for raw in cam.camera_frames():
-        processed = frame_processor.process(raw)
-        cv2.imshow("frame", processed if processed is not None else raw)
+    # Set application properties
+    app.setApplicationName("Sign Language Translator")
+    app.setApplicationVersion("1.0.0")
+    app.setOrganizationName("SLT Team")
+    
+    try:
+        # Create and show dashboard
+        dashboard = Dashboard(logger, registry)
+        dashboard.show()
         
-        # Break on 'q' key press
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            break
-    
-    cam.stop()
+        logger.info("Dashboard launched successfully")
+        
+        # Run the application
+        exit_code = app.exec()
+        
+        logger.info(f"Application exited with code: {exit_code}")
+        return exit_code
+        
+    except Exception as e:
+        logger.error(f"Error running dashboard: {e}")
+        return 1
+
+
     
 if __name__ == "__main__":
     main()
